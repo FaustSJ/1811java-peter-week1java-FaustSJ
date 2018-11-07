@@ -472,7 +472,27 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int calculateNthPrime(int i) {
-		// TODO Write an implementation for this method declaration
+		
+		if(i==1) {
+			return 2;
+		}
+		if(i==2) {
+			return 3;
+		}
+		
+		int currentPrime = 5;
+		int currentI = 3;
+		while(currentI<=i) {
+			if(currentI==i) {
+				return currentPrime;
+			}
+			if((currentI+1)==i) {
+				return currentPrime+2;
+			}
+			currentPrime += 6;
+			currentI+=2;
+		}
+		//this return statement shouldn't be reached.
 		return 0;
 	}
 
@@ -566,8 +586,24 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isPangram(String string) {
-		// TODO Write an implementation for this method declaration
-		return false;
+		string.toLowerCase();
+		char[] charArr = string.toCharArray();
+		
+		//build a map with letter, letter-count as key-value pairs
+		Map<Character,Integer> letterCount = new HashMap<Character,Integer>();
+		char[] alphabet = new String("abcdefghijklmnopqrstuvwxyz").toCharArray();
+		for(char letter : alphabet) {
+			letterCount.put(letter, 0);
+		}
+		
+		for(Character c: charArr) {
+			if(c!=' ') {
+				letterCount.put(c, letterCount.get(c)+1);
+			}
+		}
+		
+		//return true if no letter key still has a count value of 0
+		return !letterCount.containsValue(0);
 	}
 
 	/**
@@ -597,8 +633,27 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int getSumOfMultiples(int i, int[] set) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+		//NOTE: set contains the numbers to find multiples of up to i
+		
+		//make a set of multiples
+		List<Integer> multiplesSet = new LinkedList<Integer>();
+		for(int num : set) {
+			int factor = 1;
+			while((num*factor)<i) {
+				//only add unique multiples
+				if(!multiplesSet.contains(num*factor)) {
+					multiplesSet.add(num*factor);
+				}
+			}
+		}
+		
+		//then add them all together
+		int sum = 0;
+		for(int multiple : multiplesSet) {
+			sum += multiple;
+		}
+		
+		return sum;
 	}
 
 	/**
