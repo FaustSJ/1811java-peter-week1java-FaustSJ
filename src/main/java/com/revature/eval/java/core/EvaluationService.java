@@ -1,11 +1,13 @@
 package com.revature.eval.java.core;
 
 import java.time.temporal.Temporal;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class EvaluationService {
-
+	
 	/**
 	 * 1. Without using the StringBuilder or StringBuffer class, write a method that
 	 * reverses a String. Example: reverse("example"); -> "elpmaxe"
@@ -30,8 +32,17 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String acronym(String phrase) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		//simply finds and makes an acronym out of any capital letters
+		char[] phraseArr = phrase.toCharArray();
+		String acronym = new String();
+		
+		for(char c:phraseArr) {
+			if(Character.isUpperCase(c)) {
+				acronym += c;
+			}
+		}     
+		
+		return acronym;
 	}
 
 	/**
@@ -84,18 +95,23 @@ public class EvaluationService {
 		}
 
 		public boolean isEquilateral() {
-			// TODO Write an implementation for this method declaration
-			return false;
+			return ((sideOne==sideTwo)&&(sideOne==sideThree)) ? true:false;
 		}
 
 		public boolean isIsosceles() {
-			// TODO Write an implementation for this method declaration
+			if((sideOne==sideTwo) || (sideOne==sideThree) || (sideTwo==sideThree)) {
+				return true;
+			}
+		
 			return false;
 		}
 
 		public boolean isScalene() {
-			// TODO Write an implementation for this method declaration
-			return false;
+			if((sideOne==sideTwo) || (sideOne==sideThree) || (sideTwo==sideThree)) {
+				return false;
+			}
+			
+			return true;
 		}
 
 	}
@@ -103,8 +119,16 @@ public class EvaluationService {
 	/**
 	 * 4. Given a word, compute the scrabble score for that word.
 	 * 
-	 * --Letter Values-- Letter Value A, E, I, O, U, L, N, R, S, T = 1; D, G = 2; B,
-	 * C, M, P = 3; F, H, V, W, Y = 4; K = 5; J, X = 8; Q, Z = 10; Examples
+	 * --Letter Values-- Letter Value 
+	 * A, E, I, O, U, L, N, R, S, T = 1; 
+	 * D, G = 2; 
+	 * B, C, M, P = 3; 
+	 * F, H, V, W, Y = 4; 
+	 * K = 5; 
+	 * J, X = 8; 
+	 * Q, Z = 10; 
+	 * 
+	 * Examples
 	 * "cabbage" should be scored as worth 14 points:
 	 * 
 	 * 3 points for C, 1 point for A, twice 3 points for B, twice 2 points for G, 1
@@ -116,8 +140,30 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int getScrabbleScore(String string) {
-		// TODO Write an implementation for this method declaration
-		return 0;
+		string.toLowerCase();
+		char[] letters = string.toCharArray();
+		int score = 0;
+		
+		for(char c:letters) {
+			if((c=='a')||(c=='e')||(c=='i')||(c=='o')||(c=='u')||
+					(c=='l')||(c=='n')||(c=='r')||(c=='s')||(c=='t')) {
+				score+=1;
+			}else if((c=='d')||(c=='g')) {
+				score+=2;
+			}else if((c=='b')||(c=='c')||(c=='m')||(c=='p')) {
+				score+=3;
+			}else if((c=='f')||(c=='h')||(c=='v')||(c=='w')||(c=='y')) {
+				score+=4;
+			}else if(c=='k') {
+				score+=5;
+			}else if((c=='j')||(c=='x')) {
+				score+=8;
+			}else if((c=='q')||(c=='z')) {
+				score+=10;
+			}
+		}
+		
+		return score;
 	}
 
 	/**
@@ -152,8 +198,18 @@ public class EvaluationService {
 	 * NANP-countries, only 1 is considered a valid country code.
 	 */
 	public String cleanPhoneNumber(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		char[] stringArr = string.toCharArray();
+		String number = new String();
+		boolean firstDigit = true;
+		
+		for(char c : stringArr) {
+			if(Character.isDigit(c)) {
+				if((!firstDigit)||((firstDigit)&&(c!='1'))) {
+					firstDigit = false;
+					number += c;
+		}	}		}
+		
+		return number;
 	}
 
 	/**
@@ -166,8 +222,20 @@ public class EvaluationService {
 	 * @return
 	 */
 	public Map<String, Integer> wordCount(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		//split the string into an array of words
+		String[] words = string.split(" ");
+		
+		//simply go through the CharArray and count the letters
+		Map<String,Integer> wordCount = new HashMap<String,Integer>();
+		for(String word : words) {
+			if(!wordCount.containsKey(word)) {
+				wordCount.put(word, 1);
+			}else {
+				wordCount.put(word, wordCount.get(word)+1);
+			}
+		}
+		
+		return wordCount;
 	}
 
 	/**
@@ -229,7 +297,7 @@ public class EvaluationService {
 	}
 
 	/**
-	 * 8. Implement a program that translates from English to Pig Latin.
+	 * 8. Implement a program that translates a word from English to Pig Latin.
 	 * 
 	 * Pig Latin is a made-up children's language that's intended to be confusing.
 	 * It obeys a few simple rules (below), but when it's spoken quickly it's really
@@ -246,8 +314,28 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String toPigLatin(String string) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		//NOTE: for beginnings with multiple consonants, 
+		//	move ALL consonants before the first vowel to the end of the word.
+		char[] letters = string.toCharArray();
+		boolean firstVowelFound = false;
+		String wordBeginning = new String();
+		String consonants = new String();
+		
+		for(char letter : letters) {
+			//while looking for the first vowel, collect consonants.
+			//once the first vowel has been found, just build up the rest of the word.
+			if(((letter=='a')||(letter=='e')||(letter=='i')||
+					(letter=='o')||(letter=='u'))&&(!firstVowelFound)) {
+				firstVowelFound = true;
+				wordBeginning += letter;
+			}else if(firstVowelFound) {
+				wordBeginning += letter;
+			}else if(!firstVowelFound) {
+				consonants += letter;
+			}
+		}
+		
+		return (wordBeginning + consonants + "ay");
 	}
 
 	/**
@@ -265,9 +353,34 @@ public class EvaluationService {
 	 * @param input
 	 * @return
 	 */
-	public boolean isArmstrongNumber(int input) {
-		// TODO Write an implementation for this method declaration
-		return false;
+	public boolean isArmstrongNumber(int input) {		
+		//NOTE: Java does NOT have an exponential operator. Use Math.pow(base, power)!
+		
+		//first pull each digit out using its decimal place (tens, hundreds, thousands...)
+		List<Integer> digits = new LinkedList<Integer>();
+		int tens = 10;
+		while(input!=0) {
+			digits.add(input%tens);
+			input -= (input%tens);
+			tens *= 10;
+			
+		}
+		
+		//then remove the extra zeros following each digit (3000 -> 3)
+		tens /= 100;
+		List<Integer> digitsOrdered = new LinkedList<Integer>();
+		for(int i = (digits.size()-1); i>=0; i--) {
+			digitsOrdered.add(digits.get(i)/tens);
+			tens /= 10;
+		}
+		
+
+		int sum = 0;
+		for(int digit : digitsOrdered) {
+			sum += Math.pow((double) digit, (double)digitsOrdered.size());
+		}
+		
+		return (sum==input);
 	}
 
 	/**
@@ -281,8 +394,28 @@ public class EvaluationService {
 	 * @return
 	 */
 	public List<Long> calculatePrimeFactorsOf(long l) {
-		// TODO Write an implementation for this method declaration
-		return null;
+		long givenL = l;
+		List<Long> primeFactors = new LinkedList<Long>();
+		
+		if(givenL%2==0) {
+			primeFactors.add(2L);
+		}
+		if(givenL%3==0) {
+			primeFactors.add(3L);
+		}
+		
+		long currentNum = 5L;
+		while((currentNum*currentNum)<=givenL) {
+			if(givenL%currentNum==0) {
+				primeFactors.add(currentNum);
+			}
+			if(givenL%(currentNum+2L)==0) {
+				primeFactors.add(currentNum+2L);
+			}
+			currentNum += 6L;
+		}
+		
+		return primeFactors;
 	}
 
 	/**
