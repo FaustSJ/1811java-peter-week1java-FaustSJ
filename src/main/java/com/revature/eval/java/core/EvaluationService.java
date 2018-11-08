@@ -277,8 +277,52 @@ public class EvaluationService {
 		private List<T> sortedList;
 
 		public int indexOf(T t) {
-			// TODO Write an implementation for this method declaration
-			return 0;
+			//typecase to Comparable
+			//return the index of the item being searched
+			
+			boolean notPresent = false;
+			
+			//every time the number of elements is halved and the new middle index
+			//	is calculated, if the resulting index isn't a whole number, round up!
+
+			int halfAmount = 0;
+			int	index = sortedList.size()/2;
+			if(sortedList.size()%4==0) {
+				halfAmount = sortedList.size()/4;
+			} else {
+				halfAmount = (sortedList.size()/4)+1;
+			}
+			
+			while(!notPresent) {
+				
+				int verdict = ((Comparable)sortedList.get(index)).compareTo(t);
+				
+				if(verdict==0) {
+					return index;
+				}else if(verdict==-1) {
+					index += halfAmount;
+				}else if(verdict==1) {
+					index -= halfAmount;
+				}
+				
+				//before halfAmount is modified, we check if it's 1, which 
+				//	it could get stuck as. So we change it to 0 as a marker
+				//	that the next step in the loop is its last.
+				if(halfAmount==0) {
+					notPresent = true;
+				}
+				if(halfAmount==1) {
+					halfAmount = 0;
+				}
+				//halfAmount is halved
+				if(halfAmount%2==0) {
+					halfAmount /= 2;
+				}else {
+					halfAmount = (halfAmount/2)+1;
+				}
+			}
+			
+			return -1;
 		}
 
 		public BinarySearch(List<T> sortedList) {
@@ -530,7 +574,33 @@ public class EvaluationService {
 		 */
 		public static String encode(String string) {
 			// TODO Write an implementation for this method declaration
-			return null;
+			
+			//builds a map that acts as the cipher
+			Map<Character,Character> cipher = new HashMap<Character,Character>();
+			char[] keys = new String("abcdefghijklmnopqrstuvwxyz").toCharArray();
+			char[] values = new String("zyxwvutsrqponmlkjihgfedcba").toCharArray();
+			int valuesIndex = 0;
+			for(char letter : keys) {
+				cipher.put(letter, values[valuesIndex]);
+				valuesIndex++;
+			}
+			
+			char[] toEncode = string.toLowerCase().toCharArray();
+			int letterCount = 0; //reset and add an " " every time it reaches 5
+			String encoded = new String();
+			
+			for(char letter : toEncode) {
+				if(Character.isLetter(letter)) {
+					encoded += cipher.get(letter);
+					letterCount++;
+				}
+				if(letterCount==5) {
+					encoded += ' ';
+					letterCount = 0;
+				}
+			}
+			
+			return encoded.trim();
 		}
 
 		/**
@@ -541,7 +611,27 @@ public class EvaluationService {
 		 */
 		public static String decode(String string) {
 			// TODO Write an implementation for this method declaration
-			return null;
+			
+			//builds a map that acts as the cipher
+			Map<Character,Character> cipher = new HashMap<Character,Character>();
+			char[] keys = new String("abcdefghijklmnopqrstuvwxyz").toCharArray();
+			char[] values = new String("zyxwvutsrqponmlkjihgfedcba").toCharArray();
+			int valuesIndex = 0;
+			for(char letter : keys) {
+				cipher.put(letter, values[valuesIndex]);
+				valuesIndex++;
+			}
+			
+			char[] toDecode = string.toLowerCase().toCharArray();
+			String decoded = new String();
+			
+			for(char letter : toDecode) {
+				if(Character.isLetter(letter)) {
+					decoded += cipher.get(letter);
+				}
+			}
+			
+			return decoded;
 		}
 	}
 
@@ -644,8 +734,9 @@ public class EvaluationService {
 				if(!multiplesSet.contains(num*factor)) {
 					multiplesSet.add(num*factor);
 				}
+				factor++;
 			}
-		}
+		} 
 		
 		//then add them all together
 		int sum = 0;
@@ -726,6 +817,7 @@ public class EvaluationService {
 	 */
 	public int solveWordProblem(String string) {
 		// TODO Write an implementation for this method declaration
+		
 		return 0;
 	}
 
