@@ -1,5 +1,6 @@
 package com.revature.eval.java.core;
 
+import java.lang.reflect.Array;
 import java.time.temporal.Temporal;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,6 +33,8 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String acronym(String phrase) {
+		// TODO Write an implementation for this method declaration
+
 		//simply finds and makes an acronym out of any capital letters
 		char[] phraseArr = phrase.toCharArray();
 		String acronym = new String();
@@ -140,27 +143,26 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int getScrabbleScore(String string) {
-		string.toLowerCase();
-		char[] letters = string.toCharArray();
-		int score = 0;
+		char[] letters = string.toLowerCase().toCharArray();
 		
-		for(char c:letters) {
-			if((c=='a')||(c=='e')||(c=='i')||(c=='o')||(c=='u')||
-					(c=='l')||(c=='n')||(c=='r')||(c=='s')||(c=='t')) {
-				score+=1;
-			}else if((c=='d')||(c=='g')) {
-				score+=2;
-			}else if((c=='b')||(c=='c')||(c=='m')||(c=='p')) {
-				score+=3;
-			}else if((c=='f')||(c=='h')||(c=='v')||(c=='w')||(c=='y')) {
-				score+=4;
-			}else if(c=='k') {
-				score+=5;
-			}else if((c=='j')||(c=='x')) {
-				score+=8;
-			}else if((c=='q')||(c=='z')) {
-				score+=10;
+		//build the map
+		Map<Character,Integer> pointSheet = new HashMap<>();
+		char[] keys = new String("aeioulnrstdgbcmpfhvwykjxqz").toCharArray();
+		char[] values = new String("111111111122333344444588xx").toCharArray();
+		int valuesIndex = 0;
+		for(char letter : keys) {
+			if(Character.isDigit(values[valuesIndex])) {
+				pointSheet.put(letter, Character.getNumericValue(values[valuesIndex]));
+			}else {
+				pointSheet.put(letter, 10);
 			}
+			valuesIndex++;
+		}
+		
+		//track the score
+		int score = 0;
+		for(char c:letters) {
+			score += pointSheet.get(c);
 		}
 		
 		return score;
@@ -222,6 +224,8 @@ public class EvaluationService {
 	 * @return
 	 */
 	public Map<String, Integer> wordCount(String string) {
+		// TODO Write an implementation for this method declaration
+
 		//split the string into an array of words
 		String[] words = string.split(" ");
 		
@@ -233,6 +237,7 @@ public class EvaluationService {
 			}else {
 				wordCount.put(word, wordCount.get(word)+1);
 			}
+//if(string.equals("\"one,\\ntwo,\\nthree\"")) {System.out.println("key is "+word+" and val is "+wordCount.get(word)); }
 		}
 		
 		return wordCount;
@@ -358,6 +363,9 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String toPigLatin(String string) {
+		// TODO Write an implementation for this method declaration
+
+//HAVE TO DO THE SAME SPLIT STRING THING
 		//NOTE: for beginnings with multiple consonants, 
 		//	move ALL consonants before the first vowel to the end of the word.
 		char[] letters = string.toCharArray();
@@ -438,6 +446,8 @@ public class EvaluationService {
 	 * @return
 	 */
 	public List<Long> calculatePrimeFactorsOf(long l) {
+		// TODO Write an implementation for this method declaration
+//(5L, 17L, 23L, 461L), evaluationService.calculatePrimeFactorsOf(901255L
 		long givenL = l;
 		List<Long> primeFactors = new LinkedList<Long>();
 		
@@ -497,8 +507,56 @@ public class EvaluationService {
 		}
 
 		public String rotate(String string) {
-			// TODO Write an implementation for this method declaration
-			return null;
+			char[] values = new String("abcdefghijklmnopqrstuvwxyz").toCharArray();
+			
+			//------rotate the values array------
+			//there are only 'values.length' amount of possible rotated sequences, 
+			//	so we shrink the key to represent one of the initial 'values.length' number of sequences.
+			int newKey = key % 26;
+			//if newKey=0, no rotation needs to take place, as the elements end up in their initial spots.
+			if(newKey==0) {
+				return string;
+			}
+			//for each element, calculate it's new index using its original index and n.
+			int newIndex;
+			char[] shiftedKeys = new char[26];
+			for(int index=0; index<26; index++) {
+				newIndex = index+newKey;
+				//if the new index falls out of bounds, bring it back to 0-25 range,
+				//	automatically "bringing it around" to the other end of the array.
+				if(newIndex>25) {
+					newIndex -= 26;
+				}
+				//place the element in its new location
+				shiftedKeys[newIndex] = values[index];
+			}
+			
+			
+			//------construct the cipher------
+			Map<Character,Character> cipher = new HashMap<>();
+			int keysIndex = 0;
+			for(char letter : values) {
+				cipher.put(shiftedKeys[keysIndex], letter);
+				keysIndex++;
+			}
+			
+			//------translate the given string------
+			char[] toEncode = string.toCharArray();
+			String encoded = new String();
+			for(char letter : toEncode) {
+				if(Character.isLetter(letter)) {
+					if(Character.isUpperCase(letter)) {
+						encoded += Character.toUpperCase(cipher.get(Character.toLowerCase(letter)));
+					} else {
+						encoded += cipher.get(letter);
+					}
+				}
+				else {
+					encoded += letter;
+				}
+			}
+			
+			return encoded;
 		}
 
 	}
@@ -516,6 +574,10 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int calculateNthPrime(int i) {
+		
+		if(i<=0) {
+			throw new IllegalArgumentException();
+		}
 		
 		if(i==1) {
 			return 2;
@@ -573,8 +635,6 @@ public class EvaluationService {
 		 * @return
 		 */
 		public static String encode(String string) {
-			// TODO Write an implementation for this method declaration
-			
 			//builds a map that acts as the cipher
 			Map<Character,Character> cipher = new HashMap<Character,Character>();
 			char[] keys = new String("abcdefghijklmnopqrstuvwxyz").toCharArray();
@@ -610,8 +670,6 @@ public class EvaluationService {
 		 * @return
 		 */
 		public static String decode(String string) {
-			// TODO Write an implementation for this method declaration
-			
 			//builds a map that acts as the cipher
 			Map<Character,Character> cipher = new HashMap<Character,Character>();
 			char[] keys = new String("abcdefghijklmnopqrstuvwxyz").toCharArray();
@@ -659,6 +717,54 @@ public class EvaluationService {
 	 */
 	public boolean isValidIsbn(String string) {
 		// TODO Write an implementation for this method declaration
+		char[] potentialISBN = string.toCharArray();
+		
+		/*
+		 * "3-598-21507-X"
+		 */
+		
+		int factor = 10;
+		int productSum = 0;
+		for(int index=0; index<string.length(); index++) {
+			//check the final character
+			if(index == (string.length()-1)) {
+				if(Character.isLetter(potentialISBN[index])) {
+					if((potentialISBN[index]=='x')||(potentialISBN[index]=='X')){
+						productSum += 10;
+					}else {
+						System.out.println(string + " is false because last char is a letter other than x");
+						return false;
+					}
+				} else if (Character.isDigit(potentialISBN[index])){
+					productSum += (potentialISBN[index]*factor);
+				} else {
+					System.out.println(string + " is false because the last char is not x or a digit");
+					return false;
+				}
+			//else, if it's not the final character...
+			} else {
+				if(potentialISBN[index]=='-') {
+					continue;
+				}
+				if(Character.isLetter(potentialISBN[index])) {
+					System.out.println(string + " is false because there is a letter in the middle");
+					return false;
+				} else if(!Character.isDigit(potentialISBN[index])) {
+					System.out.println(string + " is false because an inner character isn't - or a digit");
+					return false;
+				} else {
+					productSum += (potentialISBN[index]*factor);
+				}
+			}
+			factor --;
+		}
+		
+		//finally, check to see if it's divisible by 11
+		if(productSum%11==0) {
+			System.out.println(string + " is true");
+			return true;
+		}
+		System.out.println(string + " is false because productSum mod 11 != 0");
 		return false;
 	}
 
