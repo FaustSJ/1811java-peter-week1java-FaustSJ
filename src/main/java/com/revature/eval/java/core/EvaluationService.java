@@ -2,6 +2,7 @@ package com.revature.eval.java.core;
 
 import java.lang.reflect.Array;
 import java.time.temporal.Temporal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,17 +34,15 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String acronym(String phrase) {
-		// TODO Write an implementation for this method declaration
-
-		//simply finds and makes an acronym out of any capital letters
-		char[] phraseArr = phrase.toCharArray();
+		//simply finds and makes an acronym out of any capital first letters
+		String[] words = phrase.split(",*\\s+");
 		String acronym = new String();
-		
-		for(char c:phraseArr) {
-			if(Character.isUpperCase(c)) {
-				acronym += c;
+		for(String word : words) {
+			char firstLetter = word.charAt(0);
+			if(Character.isUpperCase(firstLetter)) {
+				acronym += firstLetter;
 			}
-		}     
+		}
 		
 		return acronym;
 	}
@@ -211,6 +210,11 @@ public class EvaluationService {
 					number += c;
 		}	}		}
 		
+		//make sure it has the correct number of digits
+		if(number.length()>11){
+			throw new IllegalArgumentException();
+		}
+		
 		return number;
 	}
 
@@ -224,10 +228,9 @@ public class EvaluationService {
 	 * @return
 	 */
 	public Map<String, Integer> wordCount(String string) {
-		// TODO Write an implementation for this method declaration
-
-		//split the string into an array of words
-		String[] words = string.split(" ");
+		//remove commas and split the string into an array of words
+		string = string.replaceAll(",", " ");
+		String[] words = string.split("\\s+");
 		
 		//simply go through the CharArray and count the letters
 		Map<String,Integer> wordCount = new HashMap<String,Integer>();
@@ -237,7 +240,6 @@ public class EvaluationService {
 			}else {
 				wordCount.put(word, wordCount.get(word)+1);
 			}
-//if(string.equals("\"one,\\ntwo,\\nthree\"")) {System.out.println("key is "+word+" and val is "+wordCount.get(word)); }
 		}
 		
 		return wordCount;
@@ -363,31 +365,39 @@ public class EvaluationService {
 	 * @return
 	 */
 	public String toPigLatin(String string) {
-		// TODO Write an implementation for this method declaration
-
-//HAVE TO DO THE SAME SPLIT STRING THING
 		//NOTE: for beginnings with multiple consonants, 
 		//	move ALL consonants before the first vowel to the end of the word.
-		char[] letters = string.toCharArray();
-		boolean firstVowelFound = false;
-		String wordBeginning = new String();
-		String consonants = new String();
-		
-		for(char letter : letters) {
-			//while looking for the first vowel, collect consonants.
-			//once the first vowel has been found, just build up the rest of the word.
-			if(((letter=='a')||(letter=='e')||(letter=='i')||
-					(letter=='o')||(letter=='u'))&&(!firstVowelFound)) {
-				firstVowelFound = true;
-				wordBeginning += letter;
-			}else if(firstVowelFound) {
-				wordBeginning += letter;
-			}else if(!firstVowelFound) {
-				consonants += letter;
+		String[] words = string.split(" ");
+		String toReturn = "";
+		for(String word : words) {
+			char[] letters = word.toCharArray();
+			boolean firstVowelFound = false;
+			String wordBeginning = new String();
+			String consonants = new String();
+			
+			char prevLetter = '0';
+			for(char letter : letters) {
+				//while looking for the first vowel, collect consonants.
+				//once the first vowel has been found, just build up the rest of the word.
+				if(((letter=='a')||(letter=='e')||(letter=='i')||
+						(letter=='o')||(letter=='u'))&&(!firstVowelFound)) {
+					if((letter=='u')&&(prevLetter=='q')) {
+						consonants += letter;
+					}else {
+						firstVowelFound = true;
+						wordBeginning += letter;
+					}
+				}else if(firstVowelFound) {
+					wordBeginning += letter;
+				}else if(!firstVowelFound) {
+					consonants += letter;
+				}
+				prevLetter = letter;
 			}
+			toReturn += wordBeginning + consonants + "ay ";
 		}
 		
-		return (wordBeginning + consonants + "ay");
+		return toReturn.trim();
 	}
 
 	/**
@@ -408,7 +418,14 @@ public class EvaluationService {
 	public boolean isArmstrongNumber(int input) {		
 		//NOTE: Java does NOT have an exponential operator. Use Math.pow(base, power)!
 		
-		//first pull each digit out using its decimal place (tens, hundreds, thousands...)
+		int given = input;
+		
+		//first, check if it's a single digit
+		if(input<10) {
+			return true;
+		}
+		
+		//otherwise, pull each digit out using its decimal place (tens, hundreds, thousands...)
 		List<Integer> digits = new LinkedList<Integer>();
 		int tens = 10;
 		while(input!=0) {
@@ -432,7 +449,7 @@ public class EvaluationService {
 			sum += Math.pow((double) digit, (double)digitsOrdered.size());
 		}
 		
-		return (sum==input);
+		return (sum==given);
 	}
 
 	/**
@@ -446,25 +463,72 @@ public class EvaluationService {
 	 * @return
 	 */
 	public List<Long> calculatePrimeFactorsOf(long l) {
-		// TODO Write an implementation for this method declaration
-//(5L, 17L, 23L, 461L), evaluationService.calculatePrimeFactorsOf(901255L
+		//changing the parameter name for readability
 		long givenL = l;
 		List<Long> primeFactors = new LinkedList<Long>();
 		
+		//go over the initial primes
 		if(givenL%2==0) {
 			primeFactors.add(2L);
+			
+			//check if it can continue to be factored
+			long reduce = givenL/2L;
+			while(reduce%2==0) {
+				primeFactors.add(2L);
+				reduce /= 2L;
+			}
 		}
 		if(givenL%3==0) {
 			primeFactors.add(3L);
+			
+			//check if it can continue to be factored
+			long reduce = givenL/3L;
+			while(reduce%3==0) {
+				primeFactors.add(3L);
+				reduce /= 3L;
+			}
 		}
 		
+		//then run through an algorithm that finds potential primes
 		long currentNum = 5L;
 		while((currentNum*currentNum)<=givenL) {
-			if(givenL%currentNum==0) {
-				primeFactors.add(currentNum);
+			if(givenL%currentNum==0){
+				//make sure the current number isn't divisible by other primes
+				boolean toAdd = true;
+				for(long prime:primeFactors) {
+					if((currentNum)%prime==0) {
+						toAdd = false;
+					}
+				}
+				if(toAdd) {
+					primeFactors.add(currentNum);
+					
+					//check if it can continue to be factored
+					long reduce = givenL/currentNum;
+					while(reduce%currentNum==0) {
+						primeFactors.add(currentNum);
+						reduce /= currentNum;
+					}
+				}
 			}
 			if(givenL%(currentNum+2L)==0) {
-				primeFactors.add(currentNum+2L);
+				//make sure the current number isn't divisible by other primes
+				boolean toAdd = true;
+				for(long prime:primeFactors) {
+					if((currentNum+2L)%prime==0) {
+						toAdd = false;
+					}
+				}
+				if(toAdd) {
+					primeFactors.add(currentNum+2L);
+					
+					//check if it can continue to be factored
+					long reduce = givenL/(currentNum+2L);
+					while(reduce%(currentNum+2L)==0) {
+						primeFactors.add(currentNum+2L);
+						reduce /= (currentNum+2L);
+					}
+				}
 			}
 			currentNum += 6L;
 		}
@@ -646,12 +710,16 @@ public class EvaluationService {
 			}
 			
 			char[] toEncode = string.toLowerCase().toCharArray();
-			int letterCount = 0; //reset and add an " " every time it reaches 5
+			//reset and add an " " every time it reaches 5
+			int letterCount = 0; 
 			String encoded = new String();
 			
 			for(char letter : toEncode) {
 				if(Character.isLetter(letter)) {
 					encoded += cipher.get(letter);
+					letterCount++;
+				}else if(Character.isDigit(letter)) {
+					encoded += letter;
 					letterCount++;
 				}
 				if(letterCount==5) {
@@ -686,6 +754,8 @@ public class EvaluationService {
 			for(char letter : toDecode) {
 				if(Character.isLetter(letter)) {
 					decoded += cipher.get(letter);
+				}else if(Character.isDigit(letter)) {
+					decoded += letter;
 				}
 			}
 			
@@ -716,13 +786,8 @@ public class EvaluationService {
 	 * @return
 	 */
 	public boolean isValidIsbn(String string) {
-		// TODO Write an implementation for this method declaration
 		char[] potentialISBN = string.toCharArray();
-		
-		/*
-		 * "3-598-21507-X"
-		 */
-		
+
 		int factor = 10;
 		int productSum = 0;
 		for(int index=0; index<string.length(); index++) {
@@ -732,13 +797,13 @@ public class EvaluationService {
 					if((potentialISBN[index]=='x')||(potentialISBN[index]=='X')){
 						productSum += 10;
 					}else {
-						System.out.println(string + " is false because last char is a letter other than x");
+						//is false because last char is a letter other than x
 						return false;
 					}
 				} else if (Character.isDigit(potentialISBN[index])){
-					productSum += (potentialISBN[index]*factor);
+					productSum += (Character.getNumericValue(potentialISBN[index])*factor);
 				} else {
-					System.out.println(string + " is false because the last char is not x or a digit");
+					//is false because the last char is not x or a digit
 					return false;
 				}
 			//else, if it's not the final character...
@@ -747,24 +812,23 @@ public class EvaluationService {
 					continue;
 				}
 				if(Character.isLetter(potentialISBN[index])) {
-					System.out.println(string + " is false because there is a letter in the middle");
+					//is false because there is a letter in the middle
 					return false;
 				} else if(!Character.isDigit(potentialISBN[index])) {
-					System.out.println(string + " is false because an inner character isn't - or a digit");
+					//is false because an inner character isn't - or a digit
 					return false;
 				} else {
-					productSum += (potentialISBN[index]*factor);
+					productSum += (Character.getNumericValue(potentialISBN[index])*factor);
 				}
 			}
 			factor --;
 		}
-		
+
 		//finally, check to see if it's divisible by 11
 		if(productSum%11==0) {
-			System.out.println(string + " is true");
 			return true;
 		}
-		System.out.println(string + " is false because productSum mod 11 != 0");
+		//is false because productSum mod 11 != 0
 		return false;
 	}
 
@@ -891,6 +955,14 @@ public class EvaluationService {
 	 */
 	public boolean isLuhnValid(String string) {
 		// TODO Write an implementation for this method declaration
+		//make sure they didn't send an empty or null string
+//		try {
+//			if((number==null)||(number.isEmpty())){
+//				throw new IllegalArgumentException();
+//			}
+//		}catch (IllegalArgumentException iae) {
+//			LOGGER.error("Cannot parse an empty string!");
+//		}
 		return false;
 	}
 
