@@ -994,7 +994,20 @@ public class EvaluationService {
 	 * @return
 	 */
 	public int solveWordProblem(String string) {
-		// TODO Write an implementation for this method declaration
+		String[] words = string.split(" ");
+		
+		words[words.length-1] = words[words.length-1].replaceAll("[?]", "");
+		
+		switch(words[3]) {
+		case "plus":
+			return (Integer.parseInt(words[2])+Integer.parseInt(words[words.length-1]));
+		case "minus":
+			return (Integer.parseInt(words[2])-Integer.parseInt(words[words.length-1]));
+		case "multiply":
+			return (Integer.parseInt(words[2])*Integer.parseInt(words[words.length-1]));
+		case "divided":
+			return (Integer.parseInt(words[2])/Integer.parseInt(words[words.length-1]));
+		}
 		
 		return 0;
 	}
